@@ -2,6 +2,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const addTaskButton = document.getElementById('add-task');
     const newTaskInput = document.getElementById('new-task');
     const taskList = document.getElementById('task-list');
+    const saveChangesButton = document.getElementById('save-task-changes');
+    let currentEditElement = null; // To keep track of the current task being edited
+
+    // Bootstrap modal
+    const editTaskModal = new bootstrap.Modal(document.getElementById('editTaskModal'), {
+      keyboard: false
+    });
+    const taskEditInput = document.getElementById('task-edit-input');
 
     // Function to add a new task
     function addTask(taskText) {
@@ -12,7 +20,6 @@ document.addEventListener('DOMContentLoaded', () => {
         taskContent.textContent = taskText;
         li.appendChild(taskContent);
 
-        // Create a div for buttons to align them to the right
         const buttonGroup = document.createElement('div');
         buttonGroup.className = 'ms-auto'; // Bootstrap class to auto margin left
 
@@ -20,11 +27,9 @@ document.addEventListener('DOMContentLoaded', () => {
         editButton.className = 'btn btn-warning btn-sm me-2'; // me-2 for margin-right
         editButton.textContent = 'Edit';
         editButton.onclick = function () {
-            const newTask = prompt('Edit your task', taskContent.textContent);
-            if (newTask !== null && newTask.trim() !== '') {
-                taskContent.textContent = newTask.trim();
-                saveTasks();
-            }
+            currentEditElement = taskContent; // Set current task being edited
+            taskEditInput.value = taskContent.textContent; // Populate modal input with current task text
+            editTaskModal.show(); // Show the modal
         };
         buttonGroup.appendChild(editButton);
 
@@ -37,7 +42,6 @@ document.addEventListener('DOMContentLoaded', () => {
         };
         buttonGroup.appendChild(deleteButton);
 
-        // Append the button group to the list item
         li.appendChild(buttonGroup);
 
         taskList.appendChild(li);
@@ -67,6 +71,15 @@ document.addEventListener('DOMContentLoaded', () => {
         if (task) {
             addTask(task);
             newTaskInput.value = '';
+        }
+    });
+
+    // Event listener for saving changes in the modal
+    saveChangesButton.addEventListener('click', () => {
+        if (currentEditElement && taskEditInput.value.trim() !== '') {
+            currentEditElement.textContent = taskEditInput.value.trim();
+            saveTasks();
+            editTaskModal.hide();
         }
     });
 
